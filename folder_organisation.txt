@@ -1,0 +1,27 @@
+ambulance-hospital-app/
+├── backend/
+│   ├── db/
+│   │   └── pool.js               # PostgreSQL connection pool
+│   ├── routes/
+│   │   ├── ambulanceRoutes.js     # Ambulance-related routes
+│   │   └── hospitalRoutes.js      # Hospital-related routes
+│   ├── controllers/
+│   │   ├── ambulanceController.js # Logic for ambulance routes
+│   │   └── hospitalController.js  # Logic for hospital routes
+│   └── index.js                   # Main server file
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       │   ├── AmbulanceLogin.js
+│       │   ├── HospitalLogin.js
+│       │   ├── AmbulanceDetails.js
+│       │   ├── HospitalDashboard.js
+│       │   └── MapComponent.js
+│       ├── App.js
+│       ├── api.js                 # Axios configuration
+│       └── index.js               # ReactDOM render
+└── database.sql                   # SQL for creating tables
+
+
+AIzaSyDD9QHcIZgqh6FXTA4CWQbFTB2ON3BSAxM
