@@ -3,6 +3,7 @@ const { Pool } = require('pg'); // Import pg.Pool for database connection poolin
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const path=require('path');
 const cors = require('cors'); // Import CORS package
 const app = express();
 const port = 5000;
@@ -151,7 +152,7 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
           return {
             ...hospital,
             distance,
-            eta, // Add ETA in minutes
+            eta, // Add
           };
         })
         .sort((a, b) => a.distance - b.distance); // Sort by nearest distance
@@ -162,6 +163,25 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
       res.status(500).send('Error calculating shortest path.');
     }
   });
+ 
+  app.post('/submit-patient-details', async (req, res) => {
+    const { name, ageGroup, emergency, gender,hospitalName,hospitalId } = req.body;
+    console.log(name, ageGroup, emergency, gender,hospitalName,hospitalId);
+    try {
+        // Call the stored procedure
+        const query = `CALL insert_patient_details($1, $2, $3, $4,$5,$6);`;
+        const values = [name, ageGroup, emergency, gender,hospitalName,hospitalId];
+
+        await pool.query(query, values);
+
+        res.status(201).json({ message: 'Patient details submitted successfully' });
+    } catch (error) {
+        console.error('Error inserting patient details via procedure:', error);
+        res.status(500).json({ message: 'Failed to submit patient details' });
+    }
+});
+
+
 
 // Listen on port 5000
 app.listen(port, () => {
