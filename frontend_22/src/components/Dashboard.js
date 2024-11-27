@@ -30,7 +30,7 @@ const Dashboard = () => {
       const response = await axios.get('http://localhost:5001/patient-data', {
         headers: { Authorization: token },
       });
-
+      console.log(response.data.id);
       if (response.data && response.data.length > 0) {
         setNotifications(response.data);
       } else {
@@ -41,6 +41,60 @@ const Dashboard = () => {
       setError('Failed to fetch notifications. Please try again.');
     }
   };
+
+  const handleUpdateRequirements = () => {
+    const confirmUpdate = window.confirm('Do you want to update the requirements for this hospital?');
+    if (confirmUpdate) {
+      navigate('/update-requirements'); 
+    }
+  };
+const handleDelete = async (id) => {
+  // Update the notifications state to remove the deleted notification
+  console.log(`Deleting notification with ID: ${id}`);
+  setNotifications((prevNotifications) =>
+    prevNotifications.filter((notification) => notification.patient_name !== id)
+  );
+  
+  // Call updatePatientDetails with the id
+  updatePatientDetails(id);
+};
+
+// Function to update patient details after delete
+const updatePatientDetails = async (id) => {
+  console.log(`Updating patient details for ID: ${id}`);
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    setError('Unauthorized. Please log in.');
+    return;
+  }
+
+  if (!id) {
+    setError('Patient ID is missing.');
+    return;
+  }
+  const patientToUpdate = notifications.find(notification => notification.patient_name === id); // Or any condition
+
+  if (patientToUpdate) {
+    console.log('Patient Name:', patientToUpdate.patient_name);
+  }
+  try {
+    // Sending PUT request to backend to call the update_patient_details procedure
+    const response = await axios.post(
+      `http://localhost:5001/update`,  // Ensure the URL is correct and the ID is passed in
+      {
+        patient_name: patientToUpdate.patient_name,
+      }  // You can pass the updated patient details if necessary
+    );
+    
+    console.log('Patient details updated:', response.data);
+    // Optionally, refresh the notifications or handle the UI update
+    fetchNotifications();
+  } catch (error) {
+    console.error('Error updating patient details:', error);
+    setError('Failed to update patient details. Please try again.');
+  }
+};
 
   // Fetch User's Geolocation
   useEffect(() => {
@@ -58,16 +112,15 @@ const Dashboard = () => {
   }, [navigate]);
 
   return (
+    <div>
     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-8">
       <button
-    onClick={handleLogout}
-    className="bg-red-500 text-white px-4 py-2 rounded-md absolute top-4 right-4"
-    >
-      Logout
-    </button>
+        onClick={handleLogout}
+        className="bg-red-500 text-white px-4 py-2 rounded-md absolute top-4 right-4"
+      >
+        Logout
+      </button>
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative">
-  
-
         <h1 className="text-2xl font-semibold text-center mb-6 text-gray-700">
           Notifications
         </h1>
@@ -103,6 +156,14 @@ const Dashboard = () => {
                   <p>Age Group: {notification.age_group}</p>
                   <p>Emergency Type: {notification.emergency_type}</p>
                   <p>Gender: {notification.gender}</p>
+                  
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(notification.patient_name)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md mt-4"
+                  >
+                    Admit
+                  </button>
                 </div>
               ))}
             </div>
@@ -111,14 +172,26 @@ const Dashboard = () => {
           {/* Refresh Notifications */}
           <button
             onClick={fetchNotifications}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4"
+            className="bg-blue-500 text-white px-6 py-3 rounded-md mt-6 w-full hover:bg-green-600 transition-colors"
           >
             Refresh Notifications
           </button>
+          <button
+            onClick={handleUpdateRequirements}
+            className="bg-green-500 text-white px-6 py-3 rounded-md mt-6 w-full hover:bg-green-600 transition-colors"
+          >
+            Update Requirements
+          </button>
         </div>
+
+        
       </div>
     </div>
+    </div>
+
+    
   );
+
 };
 
 export default Dashboard;

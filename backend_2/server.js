@@ -10,7 +10,11 @@ const app = express();
 const port = 5001;
 
 // CORS and Middleware Setup
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3001', // Allow your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow required HTTP methods
+  credentials: true,  // Allow credentials if necessary
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -61,6 +65,22 @@ const authenticate = (req, res, next) => {
   }
 };
 
+const verifyToken = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', ''); // Extract token from header
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'yourSecretKey'); // Replace 'yourSecretKey' with your JWT secret
+    req.user = decoded; // Add decoded token data to request object
+    next(); // Call next middleware
+  } catch (err) {
+    console.error(err);
+    return res.status(401).json({ message: 'Token is not valid' });
+  }
+};
 // Routes
 
 // Signup Endpoint
@@ -158,13 +178,88 @@ app.get('/patient-data', authenticate, async (req, res) => {
   try {
     console.log(req.user.hosp_id);
     const result = await pool.query(
-      'SELECT * FROM patient_details WHERE hospital_id = $1',
+      "SELECT * FROM patient_details WHERE hospital_id = $1 AND status <> 'Admitted'",
       [req.user.hosp_id]
     );
+    console.log(result.rows);  // Log the result for debugging
     res.json(result.rows.length > 0 ? result.rows : []);
   } catch (err) {
     console.error('Error fetching patient data:', err);
     res.status(500).json({ error: 'Failed to fetch patient data' });
+  }
+});
+
+app.post('/update', async (req, res) => {
+  const { patient_name } = req.body; // Assuming patient_name is sent in the request body
+  console.log('Updating status for patient:', patient_name);
+
+  try {
+    // Call the stored procedure to update patient status
+    const result = await pool.query('CALL update_patient_status($1)', [patient_name]);
+
+    res.status(200).send({ message: 'Patient details updated successfully' });
+  } catch (err) {
+    console.error('Error updating patient details:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+app.post('/update-requirements', async (req, res) => {
+  const {
+    hospital_name,
+    emergencyWardAvailable,
+    oxygenAvailable,
+    icuAvailable,
+    emergencyWardMaintenance,
+    oxygenMaintenance,
+    icuMaintenance,
+    status
+  } = req.body;
+
+  console.log(hospital_name, emergencyWardAvailable, oxygenAvailable, icuAvailable, emergencyWardMaintenance,status);
+
+  // Determine the hospital status
+  const hospitalStatus = status
+
+  try {
+    // First, fetch the hospital_id using the hospital_name
+    const hospitalResult = await pool.query(
+      'SELECT id FROM hospitals WHERE name = $1',
+      [hospital_name]
+    );
+
+    if (hospitalResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Hospital not found' });
+    }
+
+    const hospitalId = hospitalResult.rows[0].id; // Get the hospital_id from the query result
+
+    // Now insert the data into the resources table using the retrieved hospital_id
+    const result = await pool.query(
+      `INSERT INTO resources (hosp_id, emergency_ward_status, oxygen_status, icu_status, status)
+       VALUES ($1, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR)`,
+      [
+        hospitalId, // Using the fetched hospital_id
+        emergencyWardAvailable && !emergencyWardMaintenance ? 'Available' : 'Not Available',
+        oxygenAvailable && !oxygenMaintenance ? 'Available' : 'Not Available',
+        icuAvailable && !icuMaintenance ? 'Available' : 'Not Available',
+        hospitalStatus, // Calculated hospital status
+      ]
+    );
+
+    console.log('Hospital status updated:', result);
+
+    // Fetch all statuses from the resources table
+    const statuses = await pool.query('SELECT * FROM resources');
+    
+    // Respond with a success message and all statuses
+    res.json({
+      message: 'Hospital requirements updated successfully!',
+      allStatuses: statuses.rows,
+    });
+  } catch (err) {
+    console.error('Error updating hospital status:', err);
+    res.status(500).json({ error: 'Failed to update hospital status. Please try again.' });
   }
 });
 

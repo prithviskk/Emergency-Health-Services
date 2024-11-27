@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import axios from 'axios';
@@ -11,12 +11,10 @@ const SignupPage2 = () => {
   const [proof, setProof] = useState(null); // To store the proof file
   const navigate = useNavigate();
 
-  // Use useEffect to set the proof state once when the component mounts
-  useEffect(() => {
-    const storedProof = localStorage.getItem('proof');
-    const storedProofFile = storedProof ? new File([storedProof], 'proof') : null;
-    setProof(storedProofFile); // Set the proof state once
-  }, []); // Empty dependency array means this effect runs only once on mount
+  // Handle file input change
+  const handleFileChange = (e) => {
+    setProof(e.target.files[0]);
+  };
 
   const handleMapClick = (event) => {
     const lat = event.latLng.lat();
@@ -37,6 +35,11 @@ const SignupPage2 = () => {
     const hospitalName = localStorage.getItem('hospitalName');
     const license = localStorage.getItem('license');
 
+    if (!email || !password || !hospitalName || !license) {
+      setError('Missing required fields. Please complete the sign-up form.');
+      return;
+    }
+
     // Prepare the data for submission
     const formData = new FormData();
     formData.append('email', email);
@@ -45,20 +48,29 @@ const SignupPage2 = () => {
     formData.append('license', license);
     formData.append('latitude', latitude);
     formData.append('longitude', longitude);
-    
+
     // Append the proof file to the FormData
     if (proof) {
       formData.append('proof', proof); // Ensure 'proof' matches the field name in the backend
     }
 
     try {
-      await axios.post('http://localhost:5001/signup', formData, {
+      // Send the data to the backend
+      const response = await axios.post('http://localhost:5001/signup', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      localStorage.clear(); // Clear the data after successful sign-up
-      navigate('/'); // Redirect to the login page
+      console.log(response);
+
+      if (response.status === 201) {
+        localStorage.clear(); // Clear the data after successful sign-up
+        navigate('/'); // Redirect to the login page
+      } else {
+        console.error(response.data);
+        setError('Error during sign-up. Please try again.');
+      }
     } catch (err) {
       setError('Error during sign-up. Please try again.');
+      console.error('Sign-up error:', err); // Log the error for debugging
     }
   };
 
@@ -99,6 +111,10 @@ const SignupPage2 = () => {
           </div>
         )}
 
+        {/* Proof File Upload */}
+        
+
+        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           className="w-full bg-blue-500 text-white p-2 rounded-md"

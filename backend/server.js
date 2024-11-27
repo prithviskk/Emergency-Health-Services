@@ -109,7 +109,7 @@ app.get('/hospitals', async (req, res) => {
   try {
     // Get hospitals along with their resources
     const result = await pool.query(
-      'SELECT * FROM hospitals JOIN resources ON hospitals.id = resources.hospital_id'
+      'SELECT * FROM hospitals'
     );
     res.json(result.rows);
   } catch (err) {
@@ -139,8 +139,10 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
   
     try {
       // Fetch all hospitals
-      const result = await pool.query('SELECT * FROM hospitals');
-  
+      const result = await pool.query(
+        `SELECT * 
+         FROM hospitals `
+      );
       // Assuming an ambulance speed of 80 km/h (you can adjust this)
       const ambulanceSpeed = 80; // in km/h
   
