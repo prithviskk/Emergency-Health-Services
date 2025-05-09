@@ -1,29 +1,28 @@
 const express = require('express');
-const { Pool } = require('pg'); // Import pg.Pool for database connection pooling
+const { Pool } = require('pg'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const path=require('path');
-const cors = require('cors'); // Import CORS package
+const cors = require('cors'); 
 const app = express();
 const port = 5000;
 
-// Enable CORS for all routes
-app.use(cors()); // This will allow all origins (you can restrict it if needed)
 
-// Use body-parser middleware to parse JSON request bodies
+app.use(cors()); 
+
+
 app.use(bodyParser.json());
 
-// PostgreSQL Pool setup
 const pool = new Pool({
-  host: 'localhost',      // Database host (make sure PostgreSQL is running)
-  port: 5432,             // Database port (default for PostgreSQL)
-  user: 'postgres',       // PostgreSQL username
-  password: 'Abhipivi100%', // PostgreSQL password
-  database: 'project',    // Your database name
-  max: 20,                // Max number of connections in the pool
-  idleTimeoutMillis: 30000, // Timeout for idle connections (in ms)
-  connectionTimeoutMillis: 2000, // Timeout for establishing connections (in ms)
+  host: 'localhost',      
+  port: 5432,             
+  user: 'postgres',       
+  password: 'Abhipivi100%', 
+  database: 'project',    
+  max: 20,                
+  idleTimeoutMillis: 30000, 
+  connectionTimeoutMillis: 2000, 
 });
 
 // Log database connection success and error

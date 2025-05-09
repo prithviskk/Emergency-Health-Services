@@ -9,11 +9,11 @@ const multer = require('multer');
 const app = express();
 const port = 5001;
 
-// CORS and Middleware Setup
+
 app.use(cors({
-  origin: 'http://localhost:3001', // Allow your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow required HTTP methods
-  credentials: true,  // Allow credentials if necessary
+  origin: 'http://localhost:3001',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true,  
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +24,7 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'project',
-  password: 'Abhipivi100%', // Replace with your password
+  password: 'Abhipivi100%', 
   port: 5432,
 });
 
@@ -73,9 +73,9 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, 'yourSecretKey'); // Replace 'yourSecretKey' with your JWT secret
-    req.user = decoded; // Add decoded token data to request object
-    next(); // Call next middleware
+    const decoded = jwt.verify(token, 'yourSecretKey'); 
+    req.user = decoded; 
+    next(); 
   } catch (err) {
     console.error(err);
     return res.status(401).json({ message: 'Token is not valid' });
