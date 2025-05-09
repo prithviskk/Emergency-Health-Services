@@ -172,7 +172,7 @@ const updatePatientDetails = async (id) => {
           {/* Refresh Notifications */}
           <button
             onClick={fetchNotifications}
-            className="bg-blue-500 text-white px-6 py-3 rounded-md mt-6 w-full hover:bg-green-600 transition-colors"
+            className="bg-blue -500 text-white px-6 py-3 rounded-md mt-6 w-full hover:bg-green-600 transition-colors"
           >
             Refresh Notifications
           </button>

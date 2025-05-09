@@ -112,7 +112,17 @@ const SignupPage2 = () => {
         )}
 
         {/* Proof File Upload */}
-        
+        <div className="mb-4">
+          <label htmlFor="proof" className="block text-sm font-medium text-gray-700">
+            Upload Proof (Hospital License)
+          </label>
+          <input
+            type="file"
+            id="proof"
+            onChange={handleFileChange}
+            className="w-full mt-2 border p-2"
+          />
+        </div>
 
         {/* Submit Button */}
         <button

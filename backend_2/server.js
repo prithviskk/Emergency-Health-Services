@@ -87,6 +87,7 @@ const verifyToken = (req, res, next) => {
 app.post('/signup', upload.single('proof'), async (req, res) => {
   const { email, password, hospitalName, latitude, longitude } = req.body;
   const proof = req.file ? req.file.path : null;
+  console.log(proof);
 
   try {
     const emailCheck = await pool.query('SELECT * FROM hospital_users WHERE email = $1', [email]);

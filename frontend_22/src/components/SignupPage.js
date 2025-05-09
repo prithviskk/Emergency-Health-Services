@@ -19,7 +19,7 @@ const SignupPage1 = () => {
       return;
     }
 
-    if (!hospitalName || !license || !proof) {
+    if (!hospitalName || !license ) {
       setError('All fields are required!');
       return;
     }
@@ -76,12 +76,7 @@ const SignupPage1 = () => {
             onChange={(e) => setLicense(e.target.value)}
             className="w-full p-2 mb-4 border border-gray-300 rounded-md"
           />
-          <input
-            type="file"
-            onChange={(e) => setProof(e.target.files[0])}
-            className="w-full p-2 mb-4 border border-gray-300 rounded-md"
-          />
-
+          
           <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md">
             Next
           </button>
