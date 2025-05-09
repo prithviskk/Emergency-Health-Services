@@ -66,7 +66,7 @@ cd kyra
 ```bash
 cd backend
 npm install
-nodemon index.js
+nodemon server.js
 ```
 
 ### 3. Set Up Backend for Hospital Portal
@@ -74,7 +74,7 @@ nodemon index.js
 ```bash
 cd ../backend_2
 npm install
-nodemon index.js
+nodemon server.js
 ```
 
 ### 4. Set Up Frontend for Ambulance Portal
@@ -96,10 +96,17 @@ npm start
 > ✅ Ensure `.env` files are properly set up in both backends with:
 ```env
 PORT=5000
-DATABASE_URL=postgres://user:password@localhost:5432/kyra
+PG_USER=postgres
+PG_HOST=localhost
+PG_DATABASE=project
+PG_PASSWORD=yourpass
+PG_PORT=5432
+```
+>In frontend
+
+```
 GOOGLE_MAPS_API_KEY=your_api_key_here
 ```
-
 ---
 
 ## 📍 Leaflet Integration
